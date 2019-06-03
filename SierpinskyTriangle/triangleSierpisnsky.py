@@ -104,8 +104,6 @@ class Env:
 		return "CONTINUE"
 
 
-
-
 fenetre.fill(BLANC)
 
 pygame.init()
@@ -123,8 +121,6 @@ end = 0
 grille = True
 while not fini:
 	
-
-	
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			fini = True
@@ -138,12 +134,8 @@ while not fini:
 				else:
 					grille = False
 			
-
-	
-
 	temps.tick(60)
 
-	#affiche_grille(grille)
 	if env.operation() == "STOP" and end == 0:
 		end = 1
 		print("Triangle créé\nfin du programme")
