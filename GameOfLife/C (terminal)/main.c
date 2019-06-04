@@ -37,58 +37,50 @@ void print_matrix(char *m, const int ml, const int mc)
 
 int alter(char *m, const int ml, const int mc, const int ipos, const int jpos)
 {
-	int nb = *(m+ ipos * mc + jpos)?-1:0;
+	int nb = 0;
 	int i, j;
-	int imax, jmax;
-	if(ipos-1 < 0)
-		i = ipos;
-	else
-		i = ipos-1;
-	if(ipos+1 >= ml)
-		imax = ipos;
-	else
-		imax = ipos+2;
-	if(jpos+1 >= mc)
-		jmax = jpos;
-	else
-		jmax = jpos+2;
-	while(i < imax)
+	for(i=ipos-1; i <= ipos+1; i++)
 	{
-		if(jpos-1 < 0)
-			j = jpos;
-		else
-			j = jpos-1;
-		while(j < jmax)
+		if(i >= 0 && i < ml)
 		{
-			if(*(m + i * mc + j))
-				nb++;
-			j++;
+			for(j=jpos-1; j <= jpos+1; j++)
+			{
+				if(j >= 0 && j < mc)
+				{
+					if(i != ipos || j != jpos)
+					{
+						if(*(m+ i * mc + j))
+						{
+							nb++;
+						}
+					}
+				}
+			}
 		}
-		i++;
 	}
 	
-	if(nb <= 1)
-		return DEAD;
-	if(nb >= 4)
-		return DEAD;
-	if(nb == 2 || nb == 3)
+	if(*(m+ ipos * mc + jpos))
 	{
-		if(*(m+ ipos * mc + jpos) == DEAD)
+		if(nb == 2 || nb == 3) // nb < 4
 		{
-			if(nb == 3)
-			{
-				return ALIVE;
-			}
-			else
-				return DEAD;
+			return 1;
 		}
 		else
 		{
-			return ALIVE;
+			return 0;
 		}
 	}
-
-	return ALIVE;
+	else
+	{
+		if(nb == 3)
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
+	}
 }
 
 void update_matrix(char *m, char *bis, const int ml, const int mc)
@@ -120,7 +112,7 @@ void update_matrix2(char *m, char *bis, const int ml, const int mc)
 				{
 					for(l = j-1; l <= j+1; l++)
 					{
-						if(k!=i || l!=i)
+						if(k!=i || l!=j)
 						{
 							if(k >= 0 && k < ml)
 							{
@@ -136,13 +128,13 @@ void update_matrix2(char *m, char *bis, const int ml, const int mc)
 			}
 		}
 	}
-	fprintf(stderr,"%lf,", (clock()-t1)/(double)CLOCKS_PER_SEC);
+	//fprintf(stderr,"%lf,", (clock()-t1)/(double)CLOCKS_PER_SEC);
 
 	for(int i = 0; i < ml; i++)
 		for(int j = 0; j < mc; j++)
 			*(m + i * mc + j) = *(bis + i * mc + j);
 		
-		exit(0);
+		//exit(0);
 }
 
 void set_matrix(char *m, const int mml, const int mmc, int ybeg, int xbeg, char *s, const int ml, const int mc)
@@ -165,8 +157,8 @@ void interrupt(int dummy)
 int main(void)
 {
 	signal(SIGINT, interrupt);
-	const int ml = 140;//70;
-	const int mc = 80;//180;
+	const int ml = 80;//70;
+	const int mc = 180;//180;
 	char matrix[ml][mc] = {DEAD};
 	char bis[ml][mc] = {DEAD};
 	char planneur[3][3] = {
@@ -216,9 +208,9 @@ int main(void)
 		{0,0,1,1,0,1,1,1,1,0,0,0,0,0,0},
 		{0,0,0,1,1,0,0,0,0,0,0,0,0,0,0},
 	};
-	//set_matrix(&matrix[0][0], ml, mc, 0,0,&planneur[0][0], 3,3);
+	set_matrix(&matrix[0][0], ml, mc, 15,15,&planneur[0][0], 3,3);
 	//set_matrix(&matrix[0][0], ml,mc, 0,0, &set[0][0], 9,36);
-	//set_matrix(&matrix[0][0], ml,mc, 50,mc-18, &set2[0][0], 9,18);
+	set_matrix(&matrix[0][0], ml,mc, 50,mc-18, &set2[0][0], 9,18);
 	//set_matrix(&matrix[0][0], ml,mc, 0,mc-20, &set3[0][0], 16,15);
 	int i = 0;
 	//FILE *fp = fopen("mesures.txt", "at");
@@ -232,17 +224,17 @@ int main(void)
 		//i=0;
 		clock_t t1 = clock();
 		printf("2.\n");
-		while(i <1000/*i < j*10*/)
+		while(1)
 		{
-			//system("clear");
-			//print_matrix(&matrix[0][0], ml,mc);
+			system("clear");
+			print_matrix(&matrix[0][0], ml,mc);
 			#ifdef U2
 			update_matrix2(&matrix[0][0], &bis[0][0], ml,mc);
 			#else
-			update_matrix(&matrix[0][0], &bis[0][0], ml,mc);
+			//update_matrix(&matrix[0][0], &bis[0][0], ml,mc);
 			#endif
-			//usleep(0.03333333333333333*1000000);
-			i++;
+			usleep(0.03333333333333333*1000000);
+			//i++;
 		}
 		//printf("i -> %d: %lf\n", j*10,(clock()-t1)/(double)CLOCKS_PER_SEC);
 		//fprintf(stderr,"%lf,", (clock()-t1)/(double)CLOCKS_PER_SEC);
